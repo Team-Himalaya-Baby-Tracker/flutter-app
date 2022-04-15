@@ -1,1 +1,1 @@
-const apiUrl = 'http://baby-tracking-api.test/api';
+const apiUrl = 'https://plastic-seahorse-68.loca.lt/api';

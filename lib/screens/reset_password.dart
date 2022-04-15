@@ -185,77 +185,73 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       appBar: AppBar(
         title: const Text('Reset Password'),
       ),
-      body: Column(
-        children: [
-          Stepper(
-            type: StepperType.vertical,
-            currentStep: _activeStepIndex,
-            steps: stepList(),
-            onStepContinue: () async {
-              bool emailValid = RegExp(
-                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                  .hasMatch(email.text);
+      body: Stepper(
+        type: StepperType.vertical,
+        currentStep: _activeStepIndex,
+        steps: stepList(),
+        onStepContinue: () async {
+          bool emailValid = RegExp(
+                  r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+              .hasMatch(email.text);
 
-              if (_activeStepIndex < (stepList().length - 1)) {
-                if (emailValid) {
-                  var forgotPasswordResponse = await forgotPassword();
+          if (_activeStepIndex < (stepList().length - 1)) {
+            if (emailValid) {
+              var forgotPasswordResponse = await forgotPassword();
 
-                  if (forgotPasswordResponse.statusCode != 200) {
-                    return;
-                  }
-                }
-
-                if (!emailValid && _activeStepIndex == 0) {
-                  return;
-                }
-                setState(() {
-                  _activeStepIndex += 1;
-                });
-              } else {
-                var resetPasswordResponse = await resetPassword();
-                if (resetPasswordResponse.statusCode == 200) {
-                  Navigator.pushNamed(context, '/login');
-                }
-              }
-            },
-            onStepCancel: () {
-              if (_activeStepIndex == 0) {
+              if (forgotPasswordResponse.statusCode != 200) {
                 return;
               }
-              setState(() {
-                _activeStepIndex -= 1;
-              });
-            },
-            controlsBuilder: (context, ControlsDetails controls) {
-              final isLastStep = _activeStepIndex == stepList().length - 1;
-              return Container(
-                child: Row(
-                  children: [
-                    if (_activeStepIndex > 0)
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: controls.onStepCancel,
-                          child: const Text('Back'),
-                        ),
-                      ),
-                    if (_activeStepIndex > 0)
-                      const SizedBox(
-                        width: 10,
-                      ),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: controls.onStepContinue,
-                        child: (isLastStep)
-                            ? const Text('Change password')
-                            : const Text('Next'),
-                      ),
+            }
+
+            if (!emailValid && _activeStepIndex == 0) {
+              return;
+            }
+            setState(() {
+              _activeStepIndex += 1;
+            });
+          } else {
+            var resetPasswordResponse = await resetPassword();
+            if (resetPasswordResponse.statusCode == 200) {
+              Navigator.pushNamed(context, '/login');
+            }
+          }
+        },
+        onStepCancel: () {
+          if (_activeStepIndex == 0) {
+            return;
+          }
+          setState(() {
+            _activeStepIndex -= 1;
+          });
+        },
+        controlsBuilder: (context, ControlsDetails controls) {
+          final isLastStep = _activeStepIndex == stepList().length - 1;
+          return Container(
+            child: Row(
+              children: [
+                if (_activeStepIndex > 0)
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: controls.onStepCancel,
+                      child: const Text('Back'),
                     ),
-                  ],
+                  ),
+                if (_activeStepIndex > 0)
+                  const SizedBox(
+                    width: 10,
+                  ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: controls.onStepContinue,
+                    child: (isLastStep)
+                        ? const Text('Change password')
+                        : const Text('Next'),
+                  ),
                 ),
-              );
-            },
-          ),
-        ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }

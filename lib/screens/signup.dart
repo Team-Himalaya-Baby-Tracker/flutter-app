@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:baby_tracker/utils/ApiResponse.dart';
 import 'package:baby_tracker/utils/dialogue.dart';
 import 'package:baby_tracker/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:stylish_dialog/stylish_dialog.dart';
 
 class Signup extends StatefulWidget {
   const Signup({Key? key}) : super(key: key);
@@ -48,19 +50,21 @@ class _SignupState extends State<Signup> {
 
       switch (response.statusCode) {
         case 200:
-          _apiResponse.Data = (json.decode(response.body));
-          showMyDialog(context, 'Success', 'Registered');
+          _apiResponse.data = (json.decode(response.body));
+          showMyDialog(
+              context, 'Success', 'Registered', StylishDialogType.SUCCESS);
 
           break;
 
         default:
-          _apiResponse.ApiError = ApiError.fromJson(json.decode(response.body));
-          showMyDialog(context, 'Fail', "Couldn't register");
+          _apiResponse.apiError = ApiError.fromJson(json.decode(response.body));
+          showMyDialog(
+              context, 'Fail', "Couldn't register", StylishDialogType.ERROR);
 
           break;
       }
     } on SocketException {
-      _apiResponse.ApiError = ApiError(error: "Server error. Please retry");
+      _apiResponse.apiError = ApiError(error: "Server error. Please retry");
     }
     return _apiResponse;
   }
@@ -75,22 +79,31 @@ class _SignupState extends State<Signup> {
               shrinkWrap: true,
               children: <Widget>[
                 Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(10),
-                    child: const Text(
-                      'Baby Tracker',
-                      style: TextStyle(
-                          color: Color.fromARGB(255, 148, 19, 90),
-                          fontWeight: FontWeight.w500,
-                          fontSize: 30),
-                    )),
+                  alignment: Alignment.center,
+                  child: Image.asset('assets/logo.png'),
+                ),
                 Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(10),
-                    child: const Text(
-                      'Register',
-                      style: TextStyle(fontSize: 20),
-                    )),
+                  alignment: Alignment.center,
+                  child: const Text(
+                    'BABY',
+                    style: TextStyle(
+                      color: Color.fromRGBO(94, 206, 211, 1),
+                      fontWeight: FontWeight.w900,
+                      fontSize: 72,
+                    ),
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  child: const Text(
+                    'tracking',
+                    style: TextStyle(
+                      color: Color.fromRGBO(131, 116, 218, 1),
+                      fontWeight: FontWeight.w100,
+                      fontSize: 72,
+                    ),
+                  ),
+                ),
                 Container(
                   padding: const EdgeInsets.all(10),
                   child: TextField(
@@ -170,6 +183,8 @@ class _SignupState extends State<Signup> {
                       onPressed: () async {
                         await register();
                       },
+                      style: ElevatedButton.styleFrom(
+                          primary: const Color.fromRGBO(94, 206, 211, 1)),
                     )),
                 const SizedBox(
                   height: 30,
@@ -193,40 +208,5 @@ class _SignupState extends State<Signup> {
             ),
           )),
     );
-  }
-}
-
-class ApiResponse {
-  // _data will hold any response converted into
-  // its own object. For example user.
-  late Object _data;
-  // _apiError will hold the error object
-  late Object _apiError;
-
-  Object get Data => _data;
-  set Data(Object data) => _data = data;
-
-  Object get ApiError => _apiError as Object;
-  set ApiError(Object error) => _apiError = error;
-}
-
-class ApiError {
-  late String _error;
-
-  ApiError({required String error}) {
-    _error = error;
-  }
-
-  String get error => _error;
-  set error(String error) => _error = error;
-
-  ApiError.fromJson(Map<String, dynamic> json) {
-    _error = json['message'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['error'] = _error;
-    return data;
   }
 }
