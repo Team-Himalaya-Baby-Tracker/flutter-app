@@ -1,12 +1,8 @@
-import 'dart:convert';
-import 'dart:io';
-
+import 'package:baby_tracker/services/api.dart';
 import 'package:baby_tracker/utils/ApiResponse.dart';
-import 'package:baby_tracker/utils/utils.dart';
 import 'package:baby_tracker/utils/dialogue.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stylish_dialog/stylish_dialog.dart';
 
 class Login extends StatefulWidget {
@@ -19,54 +15,53 @@ class Login extends StatefulWidget {
 class LoginState extends State<Login> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  late SharedPreferences sharedPreferences;
 
-  Future<ApiResponse> login() async {
-    ApiResponse _apiResponse = new ApiResponse();
+  bool isLoadingApp = true;
 
-    try {
-      Uri url = Uri.parse('$apiUrl/login');
+  void checkPreviousSessionAndRedirect() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    final String? token = sharedPreferences.getString('token');
 
-      Map<String, String> userHeader = {
-        "Content-type": "application/json",
-        "Accept": "application/json",
-      };
-
-      final response = await http.post(
-        url,
-        headers: userHeader,
-        body: jsonEncode(
-          <String, String>{
-            "email": emailController.text,
-            "password": passwordController.text,
-          },
-        ),
-      );
-
-      switch (response.statusCode) {
-        case 200:
-          _apiResponse.data = (json.decode(response.body));
-          showMyDialog(
-              context, 'Success', 'Logged In', StylishDialogType.SUCCESS);
-
-          Navigator.pushNamed(context, '/profile');
-
-          break;
-
-        default:
-          _apiResponse.apiError = ApiError.fromJson(json.decode(response.body));
-          showMyDialog(context, 'Fail', 'Wrong email or password',
-              StylishDialogType.ERROR);
-
-          break;
-      }
-    } on SocketException {
-      _apiResponse.apiError = ApiError(error: "Server error. Please retry");
+    if (token != null) {
+      Navigator.pushNamedAndRemoveUntil(
+          context, '/profile', (Route<dynamic> route) => false);
     }
-    return _apiResponse;
+
+    setState(() {
+      isLoadingApp = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkPreviousSessionAndRedirect();
+  }
+
+  void login() async {
+    ApiResponse apiResponse = await Api.post("/login", <String, String>{
+      "email": emailController.text,
+      "password": passwordController.text,
+    });
+
+    if (apiResponse.statusCode == 200) {
+      showMyDialog(context, 'Success', 'Logged In', StylishDialogType.SUCCESS);
+
+      sharedPreferences.setString('token', apiResponse.data['token']);
+
+      Navigator.pushNamed(context, '/profile');
+    } else {
+      showMyDialog(
+          context, 'Fail', apiResponse.apiError.error, StylishDialogType.ERROR);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoadingApp) {
+      return const CircularProgressIndicator();
+    }
     return Scaffold(
       body: Padding(
           padding: const EdgeInsets.all(10),
@@ -134,7 +129,7 @@ class LoginState extends State<Login> {
                       style: ElevatedButton.styleFrom(
                           primary: const Color.fromRGBO(94, 206, 211, 1)),
                       onPressed: () async {
-                        await login();
+                        login();
                       },
                     )),
                 const SizedBox(

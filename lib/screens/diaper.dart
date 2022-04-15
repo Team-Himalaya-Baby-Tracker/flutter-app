@@ -1,4 +1,3 @@
-import 'package:baby_tracker/screens/diaper.dart';
 import 'package:baby_tracker/services/api.dart';
 import 'package:baby_tracker/utils/ApiResponse.dart';
 import 'package:baby_tracker/utils/dialogue.dart';
@@ -10,25 +9,26 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stylish_dialog/stylish_dialog.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+class DiaperScreen extends StatefulWidget {
+  final String babyId;
+  const DiaperScreen({Key? key, required this.babyId}) : super(key: key);
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<DiaperScreen> createState() => _DiaperScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _DiaperScreenState extends State<DiaperScreen> {
   late SharedPreferences sharedPreferences;
   dynamic user;
-  dynamic babies = [];
+  dynamic diapers = [];
   bool isLoading = true;
 
-  TextEditingController _textFieldController = TextEditingController();
+  TextEditingController noteFieldController = TextEditingController();
 
   late String codeDialog;
 
   void getUser() async {
-    ApiResponse apiResponse = await Api.get("/me");
+    ApiResponse apiResponse = await Api.get("/babies/${widget.babyId}");
 
     if (apiResponse.statusCode == 200) {
       setState(() {
@@ -41,12 +41,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  void getBabies() async {
-    ApiResponse apiResponse = await Api.get("/babies");
+  void getDiapers() async {
+    ApiResponse apiResponse = await Api.get("/babies/${widget.babyId}/diapers");
 
     if (apiResponse.statusCode == 200) {
       setState(() {
-        babies = apiResponse.data["data"];
+        diapers = apiResponse.data["data"];
       });
     }
 
@@ -55,12 +55,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  Future<void> refreshProfile() async {
+  Future<void> refreshDiaper() async {
     setState(() {
       isLoading = true;
     });
     getUser();
-    getBabies();
+    getDiapers();
   }
 
   initializeState() async {
@@ -71,45 +71,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     initializeState();
-    refreshProfile();
+    refreshDiaper();
   }
 
   final double circleRadius = 100.0;
   final double circleBorderWidth = 8.0;
 
-  void sendInvitation() async {
+  void addDiaper() async {
     ApiResponse apiResponse = await Api.post(
-      "/invitations/send",
-      <String, String>{
-        "email": codeDialog,
+      "/babies/${widget.babyId}/diapers",
+      <String, dynamic>{
+        "type": [diaperTypeController.text],
+        "notes": noteFieldController.text,
       },
     );
 
     if (apiResponse.statusCode == 200 || apiResponse.statusCode == 201) {
-      showMyDialog(
-          context, 'Success', 'Sent Successfully', StylishDialogType.SUCCESS);
-    } else {
-      showMyDialog(
-          context, 'Fail', apiResponse.apiError.error, StylishDialogType.ERROR);
-    }
-
-    setState(() {
-      isLoading = false;
-      codeDialog = "";
-      _textFieldController.text = "";
-    });
-  }
-
-  void deleteBaby(dynamic id) async {
-    ApiResponse apiResponse = await Api.delete(
-      "/babies/$id",
-    );
-
-    if (apiResponse.statusCode == 200 || apiResponse.statusCode == 201) {
-      showMyDialog(context, 'Success', 'Deleted Successfully',
+      showMyDialog(context, 'Success', 'Created Successfully',
           StylishDialogType.SUCCESS);
 
-      getBabies();
+      getDiapers();
+
+      setState(() {
+        noteFieldController.text = "";
+      });
     } else {
       showMyDialog(
           context, 'Fail', apiResponse.apiError.error, StylishDialogType.ERROR);
@@ -122,17 +107,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          Navigator.pushNamed(context, '/add-baby');
+          _displayTextInputDialog(context);
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.manage_accounts),
-          onPressed: () => {Navigator.pushNamed(context, '/invitations')},
+          icon: Icon(CupertinoIcons.profile_circled),
+          onPressed: () => {Navigator.pushNamed(context, '/profile')},
           color: Colors.white,
         ),
-        title: const Text('Profile'),
+        title: const Text('Diaper'),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -148,7 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Stack(
           children: [
             RefreshIndicator(
-              onRefresh: refreshProfile,
+              onRefresh: refreshDiaper,
               child: ListView(
                 children: [
                   const SizedBox(height: 20),
@@ -162,7 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Column(
                             children: [
                               Container(
-                                  height: 340.0,
+                                  height: 180.0,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     color: Colors.white,
@@ -186,45 +171,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         //   child: buildUpgradeButton(),
                                         // ),
                                         const SizedBox(height: 24),
-                                        if (!isLoading && user != null)
-                                          NumbersWidget(user),
-                                        const SizedBox(height: 24),
-                                        Container(
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 50),
-                                          child: ElevatedButton.icon(
-                                            style: ButtonStyle(
-                                              padding:
-                                                  MaterialStateProperty.all(
-                                                      EdgeInsets.symmetric(
-                                                          vertical: 20.0)),
-                                              backgroundColor:
-                                                  MaterialStateProperty.all(
-                                                Color.fromRGBO(94, 206, 211, 1),
-                                              ),
-                                            ),
-                                            label: Text(
-                                              'Logout',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600),
-                                            ),
-                                            icon: Icon(
-                                              Icons.logout,
-                                              color: Colors.white,
-                                              size: 24.0,
-                                            ),
-                                            onPressed: () {
-                                              sharedPreferences
-                                                  .remove('token')
-                                                  .then((value) {
-                                                if (value) {
-                                                  Navigator.pushNamed(
-                                                      context, '/login');
-                                                }
-                                              });
-                                            },
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   )),
@@ -232,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Row(
                                 children: [
                                   Text(
-                                    'Babies',
+                                    'Diapers History',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
@@ -257,7 +203,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: ListView.builder(
-                                      itemCount: babies.length,
+                                      itemCount: diapers.length,
                                       itemBuilder: (_, index) => Card(
                                         margin: EdgeInsets.all(5),
                                         shape: RoundedRectangleBorder(
@@ -265,48 +211,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               BorderRadius.circular(15.0),
                                         ),
                                         child: ListTile(
-                                          title:
-                                              Text("${babies[index]['name']}"),
+                                          title: Text(
+                                              "${diapers[index]['notes']}"),
                                           subtitle: Text(
-                                            "${babies[index]['birth_date']}",
+                                            "${diapers[index]['created_at']}",
                                           ),
-                                          trailing: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              IconButton(
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          DiaperScreen(
-                                                        babyId: babies[index]
-                                                                ["id"]
-                                                            .toString(),
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                icon: Icon(
-                                                  CupertinoIcons.eye,
-                                                ),
-                                                color: Color.fromRGBO(
-                                                    94, 206, 211, 1),
-                                                hoverColor: Colors.transparent,
-                                              ),
-                                              IconButton(
-                                                onPressed: () {
-                                                  _displayTextInputDialog(
-                                                    context,
-                                                    babies[index]["id"],
-                                                  );
-                                                },
-                                                icon: Icon(Icons.delete),
-                                                color: Colors.red.shade400,
-                                                hoverColor: Colors.transparent,
-                                              ),
-                                            ],
-                                          ),
+                                          // trailing: Row(
+                                          //   mainAxisSize: MainAxisSize.min,
+                                          //   children: [
+                                          //     IconButton(
+                                          //       onPressed: () {
+                                          //         Navigator.push(
+                                          //           context,
+                                          //           MaterialPageRoute(
+                                          //             builder: (context) =>
+                                          //                 DiaperScreen(
+                                          //               babyId: diapers[index]
+                                          //                       ["type"]
+                                          //                   .toString(),
+                                          //             ),
+                                          //           ),
+                                          //         );
+                                          //       },
+                                          //       icon: Icon(
+                                          //         CupertinoIcons.eye,
+                                          //       ),
+                                          //       color: Color.fromRGBO(
+                                          //           94, 206, 211, 1),
+                                          //       hoverColor: Colors.transparent,
+                                          //     ),
+                                          //   ],
+                                          // ),
                                         ),
                                       ),
                                     ),
@@ -352,14 +287,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Future<void> _displayTextInputDialog(BuildContext context, dynamic id) async {
+  TextEditingController diaperTypeController = TextEditingController();
+
+  Future<void> _displayTextInputDialog(BuildContext context) async {
     return showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text('Delete'),
-            content: Text(
-              'Are you sure you want to delete this baby?',
+            title: Text('Add Diaper'),
+            content: Column(
+              children: [
+                TextField(
+                  controller: noteFieldController,
+                  decoration: InputDecoration(
+                      icon: const Icon(CupertinoIcons.book), hintText: "notes"),
+                ),
+                DropdownButtonFormField(
+                    items: ['wet', 'dry'].map((String category) {
+                      return new DropdownMenuItem(
+                          value: category,
+                          child: Row(
+                            children: <Widget>[
+                              Text(category),
+                            ],
+                          ));
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(
+                          () => diaperTypeController.text = newValue as String);
+                    },
+                    //value: _category,
+                    decoration: InputDecoration(
+                      icon: const Icon(CupertinoIcons.drop),
+                      hintText: "Type",
+                    )),
+              ],
             ),
             actions: <Widget>[
               FlatButton(
@@ -375,10 +337,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               FlatButton(
                 color: Color.fromRGBO(94, 206, 211, 1),
                 textColor: Colors.white,
-                child: Text('OK'),
+                child: Text('Add'),
                 onPressed: () {
                   setState(() {
-                    deleteBaby(id);
+                    addDiaper();
                     Navigator.pop(context);
                   });
                 },
@@ -396,12 +358,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            "${user['email'] ?? ''}",
-            style: TextStyle(color: Colors.grey),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            "${user['type'] ?? ''}",
+            "${user['gender'] ?? ''}",
             style: TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 4),

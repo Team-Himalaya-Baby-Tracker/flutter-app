@@ -1,13 +1,13 @@
 class ApiResponse {
   // _data will hold any response converted into
   // its own object. For example user.
-  late Object _data;
+  late Map<String, dynamic> _data;
   // _apiError will hold the error object
   late ApiError _apiError;
   late Object _statusCode;
 
-  Object get data => _data;
-  set data(Object data) => _data = data;
+  Map<String, dynamic> get data => _data;
+  set data(Map<String, dynamic> data) => _data = data;
 
   Object get statusCode => _statusCode;
   set statusCode(Object statusCode) => _statusCode = statusCode;
