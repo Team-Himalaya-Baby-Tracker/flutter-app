@@ -353,17 +353,17 @@ class _DiaperScreenState extends State<DiaperScreen> {
   Widget buildName(dynamic user) => Column(
         children: [
           Text(
-            "${user['name'] ?? ''}",
+            "${user!['name'] ?? ''}",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 21),
           ),
           const SizedBox(height: 4),
           Text(
-            "${user['gender'] ?? ''}",
+            "${user!['gender'] ?? ''}",
             style: TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 4),
           Text(
-            "${user['birth_date'] ?? ''}",
+            "${user!['birth_date'] ?? ''}",
             style: TextStyle(color: Colors.grey),
           ),
         ],

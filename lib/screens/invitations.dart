@@ -169,10 +169,10 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
                         borderRadius: BorderRadius.circular(15.0),
                       ),
                       child: ListTile(
-                        title:
-                            Text(receivedInvitations[index]['inviter']['name']),
+                        title: Text(
+                            receivedInvitations![index]!['inviter']!['name']),
                         subtitle: Text(
-                          receivedInvitations[index]['inviter']['email'],
+                          receivedInvitations![index]!['inviter']!['email'],
                         ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -180,7 +180,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
                             IconButton(
                               onPressed: () {
                                 respondToInvitations(
-                                  receivedInvitations[index]['id'].toString(),
+                                  receivedInvitations![index]!['id'].toString(),
                                   true,
                                 );
                               },
@@ -191,7 +191,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
                             IconButton(
                               onPressed: () {
                                 respondToInvitations(
-                                  receivedInvitations[index]['id'].toString(),
+                                  receivedInvitations![index]!['id'].toString(),
                                   false,
                                 );
                               },
@@ -222,9 +222,10 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
                         borderRadius: BorderRadius.circular(15.0),
                       ),
                       child: ListTile(
-                        title: Text(sentInvitations[index]['invited']["name"]),
+                        title:
+                            Text(sentInvitations[index]!['invited']!["name"]),
                         subtitle: Text(
-                          sentInvitations[index]['invited']['email'],
+                          sentInvitations[index]!['invited']!['email'],
                         ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,

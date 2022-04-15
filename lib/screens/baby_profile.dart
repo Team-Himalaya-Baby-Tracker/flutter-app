@@ -197,22 +197,22 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
   Widget buildName(dynamic user) => Column(
         children: [
           Text(
-            "${user['name'] ?? ''}",
+            "${user!['name'] ?? ''}",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 21),
           ),
           const SizedBox(height: 4),
           Text(
-            "${user['email'] ?? ''}",
+            "${user!['email'] ?? ''}",
             style: TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 4),
           Text(
-            "${user['type'] ?? ''}",
+            "${user!['type'] ?? ''}",
             style: TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 4),
           Text(
-            "${user['birth_date'] ?? ''}",
+            "${user!['birth_date'] ?? ''}",
             style: TextStyle(color: Colors.grey),
           ),
         ],

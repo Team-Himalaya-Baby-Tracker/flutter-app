@@ -10,7 +10,10 @@ class NumbersWidget extends StatelessWidget {
         children: <Widget>[
           buildDivider(),
           buildButton(
-              context, "Partner", "${user['partener']['name']}".toString()),
+              context,
+              "Partner",
+              "${user!['partener'] != null ? user!['partener']['name'] : "None"}"
+                  .toString()),
           buildDivider(),
         ],
       );

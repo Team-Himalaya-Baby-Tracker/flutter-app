@@ -265,10 +265,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               BorderRadius.circular(15.0),
                                         ),
                                         child: ListTile(
-                                          title:
-                                              Text("${babies[index]['name']}"),
+                                          title: Text(
+                                              "${babies![index]!['name']}"),
                                           subtitle: Text(
-                                            "${babies[index]['birth_date']}",
+                                            "${babies![index]!['birth_date']}",
                                           ),
                                           trailing: Row(
                                             mainAxisSize: MainAxisSize.min,
