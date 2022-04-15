@@ -47,6 +47,9 @@ class LoginState extends State<Login> {
           _apiResponse.data = (json.decode(response.body));
           showMyDialog(
               context, 'Success', 'Logged In', StylishDialogType.SUCCESS);
+
+          Navigator.pushNamed(context, '/profile');
+
           break;
 
         default:

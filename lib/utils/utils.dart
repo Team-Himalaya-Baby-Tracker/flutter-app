@@ -1,1 +1,1 @@
-const apiUrl = 'https://plastic-seahorse-68.loca.lt/api';
+const apiUrl = 'https://43d9jkhhmr.sharedwithexpose.com/api';
