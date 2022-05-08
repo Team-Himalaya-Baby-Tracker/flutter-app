@@ -12,7 +12,7 @@ class NumbersWidget extends StatelessWidget {
           buildButton(
               context,
               "Partner",
-              "${user!['partener'] != null ? user!['partener']['name'] : "None"}"
+              "${user['partener'] != null ? user['partener']!['name'] : 'None'}"
                   .toString()),
           buildDivider(),
         ],

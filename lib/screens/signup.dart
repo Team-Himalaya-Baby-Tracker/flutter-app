@@ -22,6 +22,7 @@ class _SignupState extends State<Signup> {
   TextEditingController nameController = TextEditingController();
   DateTime _chosenDateTime = DateTime.parse('19900101');
   String dropdownValue = 'parent';
+  dynamic errMsgs;
 
   Future<ApiResponse> register() async {
     ApiResponse _apiResponse = ApiResponse();
@@ -58,8 +59,15 @@ class _SignupState extends State<Signup> {
 
         default:
           _apiResponse.apiError = ApiError.fromJson(json.decode(response.body));
+
           showMyDialog(
               context, 'Fail', "Couldn't register", StylishDialogType.ERROR);
+
+          setState(
+            () {
+              errMsgs = json.decode(response.body)['errors'];
+            },
+          );
 
           break;
       }
@@ -108,9 +116,15 @@ class _SignupState extends State<Signup> {
                   padding: const EdgeInsets.all(10),
                   child: TextField(
                     controller: nameController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
                       labelText: 'Name',
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
+                      errorMaxLines: 1,
+                      errorText: errMsgs != null && errMsgs!['name'] != null
+                          ? errMsgs!['name']![0]
+                          : null,
                     ),
                   ),
                 ),
@@ -118,9 +132,15 @@ class _SignupState extends State<Signup> {
                   padding: const EdgeInsets.all(10),
                   child: TextField(
                     controller: emailController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
                       labelText: 'Email',
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
+                      errorMaxLines: 1,
+                      errorText: errMsgs != null && errMsgs!['email'] != null
+                          ? errMsgs!['email']![0]
+                          : null,
                     ),
                   ),
                 ),
@@ -129,9 +149,15 @@ class _SignupState extends State<Signup> {
                   child: TextField(
                     obscureText: true,
                     controller: passwordController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
                       labelText: 'Password',
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
+                      errorMaxLines: 1,
+                      errorText: errMsgs != null && errMsgs!['password'] != null
+                          ? errMsgs!['password']![0]
+                          : null,
                     ),
                   ),
                 ),
@@ -140,10 +166,13 @@ class _SignupState extends State<Signup> {
                   child: CupertinoDatePicker(
                     mode: CupertinoDatePickerMode.date,
                     initialDateTime: DateTime(1990, 1, 1),
+                    maximumYear: DateTime.now().year - 14,
                     onDateTimeChanged: (DateTime newDateTime) {
-                      setState(() {
-                        _chosenDateTime = newDateTime;
-                      });
+                      setState(
+                        () {
+                          _chosenDateTime = newDateTime;
+                        },
+                      );
                     },
                   ),
                 ),

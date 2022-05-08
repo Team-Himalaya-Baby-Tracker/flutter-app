@@ -327,8 +327,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               shape: CircleBorder(),
                             ),
                             child: ProfileWidget(
-                              key: const Key("sss"),
-                              onClicked: () {},
+                              user,
                             ),
                           ),
                         ),

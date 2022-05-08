@@ -6,6 +6,7 @@ import 'package:baby_tracker/widgets/numbers_widget.dart';
 import 'package:baby_tracker/widgets/profile_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stylish_dialog/stylish_dialog.dart';
 
@@ -117,7 +118,7 @@ class _DiaperScreenState extends State<DiaperScreen> {
           onPressed: () => {Navigator.pushNamed(context, '/profile')},
           color: Colors.white,
         ),
-        title: const Text('Diaper'),
+        title: const Text('Profile'),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -214,7 +215,7 @@ class _DiaperScreenState extends State<DiaperScreen> {
                                           title: Text(
                                               "${diapers[index]['notes']}"),
                                           subtitle: Text(
-                                            "${diapers[index]['created_at']}",
+                                            "${formatDate(diapers[index]['created_at'])}  ${diapers[index]['type']}",
                                           ),
                                           // trailing: Row(
                                           //   mainAxisSize: MainAxisSize.min,
@@ -261,10 +262,7 @@ class _DiaperScreenState extends State<DiaperScreen> {
                             decoration: ShapeDecoration(
                               shape: CircleBorder(),
                             ),
-                            child: ProfileWidget(
-                              key: const Key("sss"),
-                              onClicked: () {},
-                            ),
+                            child: ProfileWidget(user),
                           ),
                         ),
                       ),
@@ -368,4 +366,10 @@ class _DiaperScreenState extends State<DiaperScreen> {
           ),
         ],
       );
+}
+
+formatDate(String dateTimeString) {
+  final dateTime = DateTime.tryParse(dateTimeString);
+  final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm a');
+  return formatter.format(dateTime!);
 }

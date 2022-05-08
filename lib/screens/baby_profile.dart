@@ -169,8 +169,7 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                               shape: CircleBorder(),
                             ),
                             child: ProfileWidget(
-                              key: const Key("sss"),
-                              onClicked: () {},
+                              {},
                             ),
                           ),
                         ),

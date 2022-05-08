@@ -2,40 +2,38 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ProfileWidget extends StatelessWidget {
-  final bool isEdit;
-  final VoidCallback onClicked;
-
-  const ProfileWidget({
-    required Key key,
-    this.isEdit = false,
-    required this.onClicked,
-  }) : super(key: key);
+  const ProfileWidget(this.user);
+  final dynamic user;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Stack(
         children: [
-          buildImage(),
-          // Positioned(
-          //   bottom: 0,
-          //   right: 4,
-          //   child: buildEditIcon(color),
-          // ),
+          buildImage(user),
         ],
       ),
     );
   }
 
-  Widget buildImage() {
+  Widget buildImage(dynamic user) {
     return ClipOval(
       child: Material(
         color: Colors.transparent,
-        child: Icon(
-          CupertinoIcons.profile_circled,
-          color: Colors.black87,
-          size: 90,
-        ),
+        child: user != null && user['photo'] != null
+            ? buildCircle(
+                child: Image.network(
+                  user['photo'],
+                  fit: BoxFit.cover,
+                ),
+                color: Colors.white,
+                all: 0,
+              )
+            : const Icon(
+                CupertinoIcons.profile_circled,
+                color: Colors.black87,
+                size: 90,
+              ),
       ),
     );
   }
@@ -47,7 +45,7 @@ class ProfileWidget extends StatelessWidget {
           color: color,
           all: 8,
           child: Icon(
-            isEdit ? Icons.add_a_photo : Icons.edit,
+            Icons.add_a_photo,
             color: Colors.white,
             size: 20,
           ),

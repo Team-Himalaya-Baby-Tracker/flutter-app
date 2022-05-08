@@ -77,15 +77,10 @@ class AddBabyScreenState extends State<AddBabyScreen> {
     request.headers.addAll(userHeader);
 
     request.send().then((response) {
-      print(response.statusCode);
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         showMyDialog(context, 'Success', 'Created Successfully',
             StylishDialogType.SUCCESS);
         Navigator.pushNamed(context, '/profile');
-      } else {
-        showMyDialog(
-            context, 'Fail', "Couldn't Add baby", StylishDialogType.ERROR);
       }
     }).catchError((err) {
       showMyDialog(
