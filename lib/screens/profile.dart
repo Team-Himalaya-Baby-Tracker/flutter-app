@@ -1,4 +1,4 @@
-import 'package:baby_tracker/screens/diaper.dart';
+import 'package:baby_tracker/screens/baby_profile.dart';
 import 'package:baby_tracker/services/api.dart';
 import 'package:baby_tracker/utils/ApiResponse.dart';
 import 'package:baby_tracker/utils/dialogue.dart';
@@ -279,7 +279,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     context,
                                                     MaterialPageRoute(
                                                       builder: (context) =>
-                                                          DiaperScreen(
+                                                          BabyProfileScreen(
                                                         babyId: babies[index]
                                                                 ["id"]
                                                             .toString(),

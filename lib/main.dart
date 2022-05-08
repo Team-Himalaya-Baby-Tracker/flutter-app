@@ -1,5 +1,5 @@
 import 'package:baby_tracker/screens/add_baby.dart';
-import 'package:baby_tracker/screens/diaper.dart';
+import 'package:baby_tracker/screens/baby_profile.dart';
 import 'package:baby_tracker/screens/invitations.dart';
 import 'package:baby_tracker/screens/login.dart';
 import 'package:baby_tracker/screens/profile.dart';
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/invitations': (context) => const InvitationsScreen(),
         '/add-baby': (context) => const AddBabyScreen(),
-        '/diaper': (context) => const DiaperScreen(
+        '/baby-profile': (context) => const BabyProfileScreen(
               babyId: '',
             ),
       },
