@@ -1,3 +1,3 @@
-const url = 'https://foolish-robin-70.loca.lt';
+const url = 'http://babytrackerhimalaya.servehttp.com';
 const base = '/api';
 const apiUrl = url + base;
