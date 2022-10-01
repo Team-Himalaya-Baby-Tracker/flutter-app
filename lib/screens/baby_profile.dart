@@ -22,11 +22,8 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
   late SharedPreferences sharedPreferences;
   dynamic user;
   dynamic diapers = [];
-  
 
-
-
-dynamic heights = [];
+  dynamic heights = [];
   dynamic weights = [];
   dynamic breastFeedingRecords = [];
   dynamic bottleFeedingRecords = [];
@@ -574,10 +571,32 @@ dynamic heights = [];
                           ))
                       : Container(),
                 ],
-
               ),
-            ],
-          );
+              actions: <Widget>[
+                FlatButton(
+                  color: Colors.grey.shade400,
+                  textColor: Colors.white,
+                  child: Text('CANCEL'),
+                  onPressed: () {
+                    setState(() {
+                      Navigator.pop(context);
+                    });
+                  },
+                ),
+                FlatButton(
+                  color: Color.fromRGBO(94, 206, 211, 1),
+                  textColor: Colors.white,
+                  child: Text('Add'),
+                  onPressed: () {
+                    setState(() {
+                      addDiaper();
+                      Navigator.pop(context);
+                    });
+                  },
+                ),
+              ],
+            );
+          });
         });
   }
 
@@ -686,7 +705,7 @@ dynamic heights = [];
                     //value: _category,
                     decoration: InputDecoration(
                       icon: const Icon(CupertinoIcons.drop),
-                      hintText: "Boob Side",
+                      hintText: "Side",
                     )),
               ],
             ),
@@ -708,6 +727,55 @@ dynamic heights = [];
                 onPressed: () {
                   setState(() {
                     addBreastFeedRecord();
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  Future<void> _displayBottleFeedingDialog(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Add Record'),
+            content: Column(
+              children: [
+                TextField(
+                  controller: amountFieldController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                      icon: const Icon(CupertinoIcons.number),
+                      hintText: "Amount"),
+                ),
+                TextField(
+                  controller: noteFieldController,
+                  decoration: InputDecoration(
+                      icon: const Icon(CupertinoIcons.book), hintText: "notes"),
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.grey.shade400,
+                textColor: Colors.white,
+                child: Text('CANCEL'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+              FlatButton(
+                color: Color.fromRGBO(94, 206, 211, 1),
+                textColor: Colors.white,
+                child: Text('Add'),
+                onPressed: () {
+                  setState(() {
+                    addBottleFeedRecord();
                     Navigator.pop(context);
                   });
                 },
@@ -854,7 +922,7 @@ class DiaperTabWidget extends StatelessWidget {
                   child: ListTile(
                     title: Text("${diapers[index]['notes']}"),
                     subtitle: Text(
-                      "${formatDate(diapers[index]['created_at'])}  ${diapers[index]['type']}",
+                      "${formatDate(diapers[index]['created_at'])}  ${diapers[index]['type']} ${diapers?[index]?['type']?[0] == 'wet' ? diapers[index]['wet_type'] : ''}",
                     ),
                   ),
                 ),
@@ -1037,7 +1105,69 @@ class BreastFeedingTabWidget extends StatelessWidget {
                   child: ListTile(
                     title: Text("${records[index]['notes']}"),
                     subtitle: Text(
-                      "${formatDate(records[index]['created_at'])}\nside: ${records[index]['left_boob'] == 1 ? 'Left' : 'Right'} Boob\nDuration: ${records[index]['amount']} seconds",
+                      "${formatDate(records[index]['created_at'])}\nside: ${records[index]['left_boob'] == 1 ? 'Left' : 'Right'} Side\nDuration: ${records[index]['amount']} seconds",
+                      style: TextStyle(height: 1.4),
+                    ),
+                  ),
+                ),
+              ),
+            )),
+      ],
+    );
+  }
+}
+
+class BottleFeedingTabWidget extends StatelessWidget {
+  const BottleFeedingTabWidget({
+    Key? key,
+    required this.records,
+  }) : super(key: key);
+
+  final dynamic records;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(height: 10),
+        Row(
+          children: [
+            Text(
+              'BottleFeeding History',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 24,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 10),
+        Container(
+            height: 340.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.shade100,
+                    spreadRadius: 1,
+                    blurRadius: 6),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView.builder(
+                itemCount: records.length,
+                itemBuilder: (_, index) => Card(
+                  margin: EdgeInsets.all(5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  child: ListTile(
+                    title: Text("${records[index]['notes']}"),
+                    subtitle: Text(
+                      "${formatDate(records[index]['created_at'])}\nDuration: ${records[index]['amount']} seconds",
                       style: TextStyle(height: 1.4),
                     ),
                   ),
