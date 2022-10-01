@@ -613,7 +613,7 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                       icon: const Icon(CupertinoIcons.number),
-                      hintText: "weight"),
+                      hintText: "weight (in pounds )"),
                 ),
                 TextFormField(
                   controller: datePickerController,
@@ -681,7 +681,7 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                       icon: const Icon(CupertinoIcons.number),
-                      hintText: "Amount"),
+                      hintText: "Amount ( in minutes )"),
                 ),
                 TextField(
                   controller: noteFieldController,
@@ -749,7 +749,7 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                       icon: const Icon(CupertinoIcons.number),
-                      hintText: "Amount"),
+                      hintText: "Amount ( in ounces )"),
                 ),
                 TextField(
                   controller: noteFieldController,
@@ -797,7 +797,7 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                   controller: noteFieldController,
                   decoration: InputDecoration(
                       icon: const Icon(CupertinoIcons.number),
-                      hintText: "height"),
+                      hintText: "height( in inches )"),
                 ),
                 TextFormField(
                   controller: datePickerController,
@@ -981,7 +981,7 @@ class WeightTabWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15.0),
                   ),
                   child: ListTile(
-                    title: Text("${weights[index]['weight']}"),
+                    title: Text("${weights[index]['weight']} Pounds"),
                     subtitle: Text(
                       "${formatDate(weights[index]['created_at'])}",
                     ),
@@ -1042,7 +1042,7 @@ class HeightTabWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15.0),
                   ),
                   child: ListTile(
-                    title: Text("${heights[index]['size']}"),
+                    title: Text("${heights[index]['size']} inches"),
                     subtitle: Text(
                       "${formatDate(heights[index]['created_at'])}",
                     ),
@@ -1105,7 +1105,7 @@ class BreastFeedingTabWidget extends StatelessWidget {
                   child: ListTile(
                     title: Text("${records[index]['notes']}"),
                     subtitle: Text(
-                      "${formatDate(records[index]['created_at'])}\nside: ${records[index]['left_boob'] == 1 ? 'Left' : 'Right'} Side\nDuration: ${records[index]['amount']} seconds",
+                      "${formatDate(records[index]['created_at'])}\nside: ${records[index]['left_boob'] == 1 ? 'Left' : 'Right'} Side\nDuration: ${records[index]['amount']} minutes",
                       style: TextStyle(height: 1.4),
                     ),
                   ),
@@ -1167,7 +1167,7 @@ class BottleFeedingTabWidget extends StatelessWidget {
                   child: ListTile(
                     title: Text("${records[index]['notes']}"),
                     subtitle: Text(
-                      "${formatDate(records[index]['created_at'])}\nDuration: ${records[index]['amount']} seconds",
+                      "${formatDate(records[index]['created_at'])}\nAmount: ${records[index]['amount']} Ounces",
                       style: TextStyle(height: 1.4),
                     ),
                   ),
