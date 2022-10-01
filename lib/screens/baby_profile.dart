@@ -22,14 +22,20 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
   late SharedPreferences sharedPreferences;
   dynamic user;
   dynamic diapers = [];
-  dynamic heights = [];
+  
+
+
+
+dynamic heights = [];
   dynamic weights = [];
   dynamic breastFeedingRecords = [];
+  dynamic bottleFeedingRecords = [];
   bool isLoading = true;
 
   TextEditingController noteFieldController = TextEditingController();
   TextEditingController amountFieldController = TextEditingController();
   TextEditingController diaperTypeController = TextEditingController();
+  TextEditingController wetTypeController = TextEditingController();
   TextEditingController datePickerController = TextEditingController();
 
   late String codeDialog;
@@ -105,6 +111,21 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
     });
   }
 
+  void getBottleFeeding() async {
+    ApiResponse apiResponse =
+        await Api.get("/babies/${widget.babyId}/bottle-feed");
+
+    if (apiResponse.statusCode == 200) {
+      setState(() {
+        bottleFeedingRecords = apiResponse.data["data"];
+      });
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   Future<void> refreshDiaper() async {
     setState(() {
       isLoading = true;
@@ -114,6 +135,7 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
     getHeights();
     getWeights();
     getBreastfeeding();
+    getBottleFeeding();
   }
 
   initializeState() async {
@@ -136,6 +158,7 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
       <String, dynamic>{
         "type": [diaperTypeController.text],
         "notes": noteFieldController.text,
+        "wet_type": wetTypeController.text,
       },
     );
 
@@ -207,6 +230,36 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
         noteFieldController.text = "";
         diaperTypeController.text = "";
         amountFieldController.text = "";
+        wetTypeController.text = "";
+      });
+    } else {
+      showMyDialog(
+          context, 'Fail', apiResponse.apiError.error, StylishDialogType.ERROR);
+    }
+  }
+
+  void addBottleFeedRecord() async {
+    var body = <String, dynamic>{
+      "notes": noteFieldController.text,
+      "amount": amountFieldController.text,
+    };
+
+    if (datePickerController.text.isEmpty) {
+      body["created_at"] = datePickerController.text;
+    }
+
+    ApiResponse apiResponse =
+        await Api.post("/babies/${widget.babyId}/bottle-feed", body);
+
+    if (apiResponse.statusCode == 200 || apiResponse.statusCode == 201) {
+      showMyDialog(context, 'Success', 'Created Successfully',
+          StylishDialogType.SUCCESS);
+
+      getBottleFeeding();
+
+      setState(() {
+        noteFieldController.text = "";
+        amountFieldController.text = "";
       });
     } else {
       showMyDialog(
@@ -247,7 +300,7 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
@@ -256,6 +309,7 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
               noteFieldController.text = "";
               datePickerController.text = "";
               diaperTypeController.text = "";
+              wetTypeController.text = "";
             });
 
             switch (currentTabIndex) {
@@ -277,6 +331,11 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
               case 3:
                 {
                   _displayBreastFeedingDialog(context);
+                }
+                break;
+              case 4:
+                {
+                  _displayBottleFeedingDialog(context);
                 }
                 break;
               default:
@@ -356,6 +415,16 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                                   height: 80,
                                   child: AppBar(
                                     bottom: TabBar(
+                                      isScrollable: true,
+                                      labelPadding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      indicator: const UnderlineTabIndicator(
+                                        borderSide: BorderSide(
+                                            color: Colors.white,
+                                            width: 3), // Indicator height
+                                        insets: EdgeInsets.symmetric(
+                                            horizontal: 20), // Indicator width
+                                      ),
                                       onTap: (int index) {
                                         setState(() {
                                           currentTabIndex = index;
@@ -376,8 +445,12 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                                           text: 'Height',
                                         ),
                                         Tab(
-                                          icon: Icon(Icons.liquor),
+                                          icon: Icon(Icons.pregnant_woman),
                                           text: 'Breastfeeding',
+                                        ),
+                                        Tab(
+                                          icon: Icon(Icons.liquor),
+                                          text: 'Bottlefeeding',
                                         ),
                                       ],
                                     ),
@@ -391,7 +464,9 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                                       WeightTabWidget(weights: weights),
                                       HeightTabWidget(heights: heights),
                                       BreastFeedingTabWidget(
-                                          records: breastFeedingRecords)
+                                          records: breastFeedingRecords),
+                                      BottleFeedingTabWidget(
+                                          records: bottleFeedingRecords),
                                     ],
                                   ),
                                 )
@@ -435,60 +510,71 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
   }
 
   Future<void> _displayAddDiaperDialog(BuildContext context) async {
+    bool isWetTypeShown = false;
+
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text('Add Diaper'),
-            content: Column(
-              children: [
-                TextField(
-                  controller: noteFieldController,
-                  decoration: InputDecoration(
-                      icon: const Icon(CupertinoIcons.book), hintText: "notes"),
-                ),
-                DropdownButtonFormField(
-                    items: ['wet', 'dry'].map((String category) {
-                      return new DropdownMenuItem(
-                          value: category,
-                          child: Row(
-                            children: <Widget>[
-                              Text(category),
-                            ],
-                          ));
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(
-                          () => diaperTypeController.text = newValue as String);
-                    },
-                    //value: _category,
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Add Diaper'),
+              content: Column(
+                children: [
+                  TextField(
+                    controller: noteFieldController,
                     decoration: InputDecoration(
-                      icon: const Icon(CupertinoIcons.drop),
-                      hintText: "Type",
-                    )),
-              ],
-            ),
-            actions: <Widget>[
-              FlatButton(
-                color: Colors.grey.shade400,
-                textColor: Colors.white,
-                child: Text('CANCEL'),
-                onPressed: () {
-                  setState(() {
-                    Navigator.pop(context);
-                  });
-                },
-              ),
-              FlatButton(
-                color: Color.fromRGBO(94, 206, 211, 1),
-                textColor: Colors.white,
-                child: Text('Add'),
-                onPressed: () {
-                  setState(() {
-                    addDiaper();
-                    Navigator.pop(context);
-                  });
-                },
+                        icon: const Icon(CupertinoIcons.book),
+                        hintText: "notes"),
+                  ),
+                  DropdownButtonFormField(
+                      items: ['wet', 'dry'].map((String category) {
+                        return new DropdownMenuItem(
+                            value: category,
+                            child: Row(
+                              children: <Widget>[
+                                Text(category),
+                              ],
+                            ));
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          diaperTypeController.text = newValue as String;
+                          if (newValue == 'wet') {
+                            isWetTypeShown = true;
+                          } else {
+                            isWetTypeShown = false;
+                          }
+                        });
+                      },
+                      //value: _category,
+                      decoration: InputDecoration(
+                        icon: const Icon(CupertinoIcons.drop),
+                        hintText: "Type",
+                      )),
+                  isWetTypeShown
+                      ? DropdownButtonFormField(
+                          items: ['pee', 'BM'].map((String category) {
+                            return new DropdownMenuItem(
+                                value: category,
+                                child: Row(
+                                  children: <Widget>[
+                                    Text(category),
+                                  ],
+                                ));
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              wetTypeController.text = newValue as String;
+                            });
+                          },
+                          //value: _category,
+                          decoration: InputDecoration(
+                            icon: const Icon(CupertinoIcons.drop),
+                            hintText: "Wet Type",
+                          ))
+                      : Container(),
+                ],
+
               ),
             ],
           );
