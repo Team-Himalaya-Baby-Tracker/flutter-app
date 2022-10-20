@@ -312,17 +312,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     94, 206, 211, 1),
                                                 hoverColor: Colors.transparent,
                                               ),
-                                              IconButton(
-                                                onPressed: () {
-                                                  _displayTextInputDialog(
-                                                    context,
-                                                    babies[index]["id"],
-                                                  );
-                                                },
-                                                icon: Icon(Icons.delete),
-                                                color: Colors.red.shade400,
-                                                hoverColor: Colors.transparent,
-                                              ),
+                                              userType == 'parent'
+                                                  ? IconButton(
+                                                      onPressed: () {
+                                                        _displayTextInputDialog(
+                                                          context,
+                                                          babies[index]["id"],
+                                                        );
+                                                      },
+                                                      icon: Icon(Icons.delete),
+                                                      color:
+                                                          Colors.red.shade400,
+                                                      hoverColor:
+                                                          Colors.transparent,
+                                                    )
+                                                  : Container(),
                                             ],
                                           ),
                                         ),
