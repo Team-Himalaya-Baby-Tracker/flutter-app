@@ -22,6 +22,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   dynamic user;
   dynamic babies = [];
   bool isLoading = true;
+  String userType = "";
 
   TextEditingController _textFieldController = TextEditingController();
 
@@ -31,8 +32,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ApiResponse apiResponse = await Api.get("/me");
 
     if (apiResponse.statusCode == 200) {
+      sharedPreferences.setString("userType", apiResponse.data["data"]["type"]);
+
       setState(() {
         user = apiResponse.data["data"];
+        userType = apiResponse.data["data"]["type"] ?? "";
       });
     }
 
@@ -132,6 +136,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onPressed: () => {Navigator.pushNamed(context, '/invitations')},
           color: Colors.white,
         ),
+        actions: [
+          userType == 'parent'
+              ? IconButton(
+                  icon: Icon(Icons.person_search),
+                  onPressed: () async {
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, '/baby-sitters', (route) => false);
+                  },
+                  color: Colors.white,
+                )
+              : Container()
+        ],
         title: const Text('Profile'),
       ),
       body: Container(

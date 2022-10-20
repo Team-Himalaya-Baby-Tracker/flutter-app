@@ -413,7 +413,7 @@ class _InvitationsScreenState extends State<BabySittersScreen> {
                     elevation: 16,
                     decoration: const InputDecoration(
                       filled: true,
-                      labelText: 'Baby',
+                      labelText: 'Type',
                     ),
                     onChanged: (String? newValue) {
                       setState(() {
