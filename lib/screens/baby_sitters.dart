@@ -333,4 +333,146 @@ class _InvitationsScreenState extends State<BabySittersScreen> {
           );
         });
   }
+
+  Future<void> _displayInvitationUpdateDialog(
+      BuildContext context, dynamic id) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            insetPadding: EdgeInsets.zero,
+            contentPadding: EdgeInsets.zero,
+            clipBehavior: Clip.antiAliasWithSaveLayer,
+            title: Text('Invite Baby Sitter'),
+            content: Column(
+              children: [
+                Container(
+                  height: 200,
+                  child: DefaultTextStyle.merge(
+                    style: TextStyle(
+                      fontSize: 10,
+                    ),
+                    child: CupertinoDatePicker(
+                      mode: CupertinoDatePickerMode.date,
+                      initialDateTime: _chosenDateTime,
+                      onDateTimeChanged: (DateTime newDateTime) {
+                        setState(
+                          () {
+                            _chosenDateTime = newDateTime;
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.grey.shade400,
+                textColor: Colors.white,
+                child: Text('CANCEL'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+              FlatButton(
+                  color: Color.fromRGBO(94, 206, 211, 1),
+                  textColor: Colors.white,
+                  child: Text('OK'),
+                  onPressed: () {
+                    setState(() {
+                      codeDialog = _textFieldController.text;
+                      updateInvitation(id);
+                      Navigator.pop(context);
+                    });
+                  }),
+            ],
+          );
+        });
+  }
+
+  Future<void> _displayBabySitterInviteDialogue(
+      BuildContext context, dynamic id) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            insetPadding: EdgeInsets.zero,
+            contentPadding: EdgeInsets.zero,
+            clipBehavior: Clip.antiAliasWithSaveLayer,
+            title: Text('Invite Baby Sitter'),
+            content: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  child: DropdownButtonFormField<String>(
+                    value: dropdownValue,
+                    elevation: 16,
+                    decoration: const InputDecoration(
+                      filled: true,
+                      labelText: 'Baby',
+                    ),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        dropdownValue = newValue!;
+                      });
+                    },
+                    items: babies.map<DropdownMenuItem<String>>((var option) {
+                      return DropdownMenuItem<String>(
+                        value: (option["id"] ?? "").toString(),
+                        child: Text(option['name'] ?? ''),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                Container(
+                  height: 200,
+                  child: DefaultTextStyle.merge(
+                    style: TextStyle(
+                      fontSize: 10,
+                    ),
+                    child: CupertinoDatePicker(
+                      mode: CupertinoDatePickerMode.date,
+                      initialDateTime: _chosenDateTime,
+                      onDateTimeChanged: (DateTime newDateTime) {
+                        setState(
+                          () {
+                            _chosenDateTime = newDateTime;
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.grey.shade400,
+                textColor: Colors.white,
+                child: Text('CANCEL'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+              FlatButton(
+                  color: Color.fromRGBO(94, 206, 211, 1),
+                  textColor: Colors.white,
+                  child: Text('OK'),
+                  onPressed: () {
+                    setState(() {
+                      codeDialog = _textFieldController.text;
+                      inviteBabySitter(id);
+                      Navigator.pop(context);
+                    });
+                  }),
+            ],
+          );
+        });
+  }
 }
