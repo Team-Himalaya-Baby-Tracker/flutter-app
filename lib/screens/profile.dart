@@ -123,12 +123,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          Navigator.pushNamed(context, '/add-baby');
-        },
-      ),
+      floatingActionButton: userType == 'parent'
+          ? FloatingActionButton(
+              child: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.pushNamed(context, '/add-baby');
+              },
+            )
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       appBar: AppBar(
         leading: IconButton(

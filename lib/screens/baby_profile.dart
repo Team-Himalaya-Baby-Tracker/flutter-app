@@ -150,13 +150,22 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
   final double circleBorderWidth = 8.0;
 
   void addDiaper() async {
-    ApiResponse apiResponse = await Api.post(
-      "/babies/${widget.babyId}/diapers",
-      <String, dynamic>{
+    dynamic body = <String, dynamic>{
+      "type": [diaperTypeController.text],
+      "notes": noteFieldController.text,
+    };
+
+    if (diaperTypeController.text == 'wet') {
+      body = <String, dynamic>{
         "type": [diaperTypeController.text],
         "notes": noteFieldController.text,
         "wet_type": wetTypeController.text,
-      },
+      };
+    }
+
+    ApiResponse apiResponse = await Api.post(
+      "/babies/${widget.babyId}/diapers",
+      body,
     );
 
     if (apiResponse.statusCode == 200 || apiResponse.statusCode == 201) {
