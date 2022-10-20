@@ -19,10 +19,14 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
   dynamic receivedInvitations = [];
   bool isLoading = true;
   TextEditingController _textFieldController = TextEditingController();
+  String userType = "";
 
   late String codeDialog;
 
   void getSentInvitations() async {
+    if (userType != 'parent') {
+      return;
+    }
     ApiResponse apiResponse = await Api.get("/invitations/sent");
 
     if (apiResponse.statusCode == 200) {
@@ -33,6 +37,13 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
 
     setState(() {
       isLoading = false;
+    });
+  }
+
+  void getUserType() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      userType = sharedPreferences.getString('userType') ?? "";
     });
   }
 
@@ -60,8 +71,12 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
   }
 
   void respondToInvitations(String id, bool isAccepted) async {
+    String url = userType == "parent"
+        ? "/invitations/$id"
+        : "/baby-sitter/invitations/$id";
+
     ApiResponse apiResponse = await Api.put(
-      "/invitations/$id",
+      url,
       <String, bool>{
         "accepted": isAccepted,
       },
@@ -82,7 +97,11 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
   }
 
   void getReceivedInvitations() async {
-    ApiResponse apiResponse = await Api.get("/invitations/received");
+    String url = userType == "parent"
+        ? "/invitations/received"
+        : "/baby-sitter/invitations/list";
+
+    ApiResponse apiResponse = await Api.get(url);
 
     if (apiResponse.statusCode == 200) {
       setState(() {
@@ -111,7 +130,64 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
   void initState() {
     super.initState();
     initializeState();
+    getUserType();
     refreshInvitations();
+  }
+
+  Widget receivedTab() {
+    return Padding(
+      padding: EdgeInsets.all(4.0),
+      child: ListTileTheme(
+        contentPadding: EdgeInsets.all(15),
+        iconColor: Colors.red,
+        textColor: Colors.black54,
+        tileColor: Colors.white,
+        style: ListTileStyle.list,
+        dense: true,
+        child: ListView.builder(
+          itemCount: receivedInvitations.length,
+          itemBuilder: (_, index) => Card(
+            margin: EdgeInsets.all(5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            child: ListTile(
+              title: Text(
+                  "Parent: ${receivedInvitations![index]!['parent']!['name']}"),
+              subtitle: Text(
+                "Baby: ${receivedInvitations![index]!['baby']!['name']}",
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      respondToInvitations(
+                        receivedInvitations![index]!['id'].toString(),
+                        true,
+                      );
+                    },
+                    icon: Icon(Icons.check),
+                    color: Color.fromRGBO(94, 206, 211, 1),
+                    hoverColor: Colors.transparent,
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      respondToInvitations(
+                        receivedInvitations![index]!['id'].toString(),
+                        false,
+                      );
+                    },
+                    icon: Icon(Icons.close),
+                    hoverColor: Colors.transparent,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -119,11 +195,13 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.add),
-            onPressed: () {
-              _displayTextInputDialog(context);
-            }),
+        floatingActionButton: userType == 'parent'
+            ? FloatingActionButton(
+                child: const Icon(Icons.add),
+                onPressed: () {
+                  _displayTextInputDialog(context);
+                })
+            : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
         appBar: AppBar(
           leading: IconButton(
@@ -131,12 +209,14 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
             onPressed: () => {Navigator.pushNamed(context, '/profile')},
             color: Colors.white,
           ),
-          bottom: const TabBar(
-            tabs: [
-              Tab(icon: Icon(Icons.call_received), text: 'Received'),
-              Tab(icon: Icon(Icons.call_made), text: 'Sent'),
-            ],
-          ),
+          bottom: userType == 'parent'
+              ? const TabBar(
+                  tabs: [
+                    Tab(icon: Icon(Icons.call_received), text: 'Received'),
+                    Tab(icon: Icon(Icons.call_made), text: 'Sent'),
+                  ],
+                )
+              : null,
           title: const Text('Invitations'),
         ),
         body: Container(
@@ -150,99 +230,69 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
               ],
             ),
           ),
-          child: TabBarView(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(4.0),
-                child: ListTileTheme(
-                  contentPadding: EdgeInsets.all(15),
-                  iconColor: Colors.red,
-                  textColor: Colors.black54,
-                  tileColor: Colors.white,
-                  style: ListTileStyle.list,
-                  dense: true,
-                  child: ListView.builder(
-                    itemCount: receivedInvitations.length,
-                    itemBuilder: (_, index) => Card(
-                      margin: EdgeInsets.all(5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                            receivedInvitations![index]!['inviter']!['name']),
-                        subtitle: Text(
-                          receivedInvitations![index]!['inviter']!['email'],
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                respondToInvitations(
-                                  receivedInvitations![index]!['id'].toString(),
-                                  true,
-                                );
-                              },
-                              icon: Icon(Icons.check),
-                              color: Color.fromRGBO(94, 206, 211, 1),
-                              hoverColor: Colors.transparent,
+          child: userType == 'parent'
+              ? TabBarView(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: ListTileTheme(
+                        contentPadding: EdgeInsets.all(15),
+                        iconColor: Colors.red,
+                        textColor: Colors.black54,
+                        tileColor: Colors.white,
+                        style: ListTileStyle.list,
+                        dense: true,
+                        child: ListView.builder(
+                          itemCount: receivedInvitations.length,
+                          itemBuilder: (_, index) => Card(
+                            margin: EdgeInsets.all(5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
                             ),
-                            IconButton(
-                              onPressed: () {
-                                respondToInvitations(
-                                  receivedInvitations![index]!['id'].toString(),
-                                  false,
-                                );
-                              },
-                              icon: Icon(Icons.close),
-                              hoverColor: Colors.transparent,
+                            child: ListTile(
+                              title: Text(receivedInvitations![index]![
+                                  'inviter']!['name']),
+                              subtitle: Text(
+                                receivedInvitations![index]!['inviter']![
+                                    'email'],
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      respondToInvitations(
+                                        receivedInvitations![index]!['id']
+                                            .toString(),
+                                        true,
+                                      );
+                                    },
+                                    icon: Icon(Icons.check),
+                                    color: Color.fromRGBO(94, 206, 211, 1),
+                                    hoverColor: Colors.transparent,
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      respondToInvitations(
+                                        receivedInvitations![index]!['id']
+                                            .toString(),
+                                        false,
+                                      );
+                                    },
+                                    icon: Icon(Icons.close),
+                                    hoverColor: Colors.transparent,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(4.0),
-                child: ListTileTheme(
-                  contentPadding: EdgeInsets.all(15),
-                  iconColor: Colors.red,
-                  textColor: Colors.black54,
-                  tileColor: Colors.white,
-                  style: ListTileStyle.list,
-                  dense: true,
-                  child: ListView.builder(
-                    itemCount: sentInvitations.length,
-                    itemBuilder: (_, index) => Card(
-                      margin: EdgeInsets.all(5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: ListTile(
-                        title:
-                            Text(sentInvitations[index]!['invited']!["name"]),
-                        subtitle: Text(
-                          sentInvitations[index]!['invited']!['email'],
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.pending_actions,
-                              color: Colors.black,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+                    receivedTab()
+                  ],
+                )
+              : receivedTab(),
         ),
       ),
     );
