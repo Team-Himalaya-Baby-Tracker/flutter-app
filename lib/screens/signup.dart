@@ -18,6 +18,7 @@ class Signup extends StatefulWidget {
 
 class _SignupState extends State<Signup> {
   TextEditingController emailController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   DateTime _chosenDateTime = DateTime.parse('19900101');
@@ -43,6 +44,7 @@ class _SignupState extends State<Signup> {
             "name": nameController.text,
             "email": emailController.text,
             "password": passwordController.text,
+            "description": isDescriptionShown ? descriptionController.text : "",
             "type": dropdownValue,
             "birth_date": (_chosenDateTime).toString()
           },
@@ -76,6 +78,8 @@ class _SignupState extends State<Signup> {
     }
     return _apiResponse;
   }
+
+  bool isDescriptionShown = false;
 
   @override
   Widget build(BuildContext context) {
@@ -188,6 +192,12 @@ class _SignupState extends State<Signup> {
                     onChanged: (String? newValue) {
                       setState(() {
                         dropdownValue = newValue!;
+
+                        if (newValue == 'baby_sitter') {
+                          isDescriptionShown = true;
+                        } else {
+                          isDescriptionShown = false;
+                        }
                       });
                     },
                     items: [
@@ -201,6 +211,29 @@ class _SignupState extends State<Signup> {
                     }).toList(),
                   ),
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
+                isDescriptionShown
+                    ? Container(
+                        padding: const EdgeInsets.all(10),
+                        child: TextField(
+                          controller: descriptionController,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            border: const OutlineInputBorder(),
+                            labelText: "Description",
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            errorMaxLines: 1,
+                            errorText: errMsgs != null &&
+                                    errMsgs!['description'] != null
+                                ? errMsgs!['description']![0]
+                                : null,
+                          ),
+                        ),
+                      )
+                    : Container(),
                 const SizedBox(
                   height: 30,
                 ),
