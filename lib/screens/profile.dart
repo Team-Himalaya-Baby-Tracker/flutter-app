@@ -204,12 +204,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         //   child: buildUpgradeButton(),
                                         // ),
                                         const SizedBox(height: 24),
-                                        if (!isLoading && user != null)
+                                        if (!isLoading &&
+                                            user != null &&
+                                            user["type"] == "parent")
                                           NumbersWidget(user),
                                         const SizedBox(height: 24),
                                         Container(
                                           margin: EdgeInsets.symmetric(
-                                              horizontal: 50),
+                                              horizontal: 80),
                                           child: ElevatedButton.icon(
                                             style: ButtonStyle(
                                               padding:
@@ -229,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             icon: Icon(
                                               Icons.logout,
                                               color: Colors.white,
-                                              size: 24.0,
+                                              size: 17.0,
                                             ),
                                             onPressed: () {
                                               sharedPreferences
@@ -354,6 +356,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                       ),
+                      Positioned(
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Color.fromRGBO(94, 206, 211, 1),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 17,
+                            ),
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/edit-profile');
+                            },
+                          ),
+                        ),
+                        right: 27,
+                        top: 80,
+                      ),
                     ],
                   ),
                 ],
@@ -430,6 +450,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             "${user['birth_date'] ?? ''}",
             style: TextStyle(color: Colors.grey),
           ),
+          const SizedBox(height: 4),
+          user['type'] == 'baby_sitter'
+              ? Text(
+                  "Description: ${user['description'] ?? ''}",
+                  style: TextStyle(color: Colors.grey),
+                )
+              : Container(),
         ],
       );
 }
