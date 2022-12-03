@@ -14,6 +14,7 @@ class Api {
     ApiResponse _apiResponse = ApiResponse();
 
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
     Map<String, String> userHeader = {
       "Content-type": "application/json",
       "Accept": "application/json",
@@ -54,6 +55,7 @@ class Api {
     ApiResponse _apiResponse = ApiResponse();
 
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
     Map<String, String> userHeader = {
       "Content-type": "application/json",
       "Accept": "application/json",

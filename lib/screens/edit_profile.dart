@@ -33,13 +33,16 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   TextEditingController newPasswordController = TextEditingController();
 
   void updateProfile() async {
-    ApiResponse apiResponse = await Api.put(
-      "/me",
-      <String, String>{
-        "name": nameController.text,
-        "description": descriptionController.text,
-      },
-    );
+    dynamic body = user?["type"] == 'baby_sitter'
+        ? <String, String>{
+            "name": nameController.text,
+            "description": descriptionController.text,
+          }
+        : <String, String>{
+            "name": nameController.text,
+          };
+
+    ApiResponse apiResponse = await Api.put("/me", body);
 
     if (apiResponse.statusCode == 200 || apiResponse.statusCode == 201) {
       showMyDialog(context, 'Success', 'Updated Successfully',
@@ -87,7 +90,10 @@ class EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         user = apiResponse.data["data"];
         nameController.text = user["name"];
-        descriptionController.text = user["description"];
+
+        if (user?["type"] == "baby_sitter" && user["description"] != null) {
+          descriptionController.text = user["description"];
+        }
       });
     }
 
@@ -165,27 +171,29 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 15),
-                      TextFormField(
-                        controller: descriptionController,
-                        maxLines: 2,
-                        decoration: const InputDecoration(
-                          icon: Icon(
-                            Icons.description,
-                            color: Colors.black54,
-                          ),
-                          labelText: 'Description',
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              width: 3,
-                              color: Colors.black12,
-                            ),
-                          ),
-                          focusColor: Colors.black12,
-                          labelStyle: TextStyle(
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
+                      user?["type"] == 'baby_sitter'
+                          ? TextFormField(
+                              controller: descriptionController,
+                              maxLines: 2,
+                              decoration: const InputDecoration(
+                                icon: Icon(
+                                  Icons.description,
+                                  color: Colors.black54,
+                                ),
+                                labelText: 'Description',
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    width: 3,
+                                    color: Colors.black12,
+                                  ),
+                                ),
+                                focusColor: Colors.black12,
+                                labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            )
+                          : Container(),
                       Center(
                         child: Container(
                             padding: EdgeInsets.only(left: 0, top: 40.0),

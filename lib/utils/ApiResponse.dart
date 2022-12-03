@@ -4,7 +4,7 @@ class ApiResponse {
   late Map<String, dynamic> _data;
   // _apiError will hold the error object
   late ApiError _apiError;
-  late Object _statusCode;
+  late Object _statusCode = 0;
 
   Map<String, dynamic> get data => _data;
   set data(Map<String, dynamic> data) => _data = data;
