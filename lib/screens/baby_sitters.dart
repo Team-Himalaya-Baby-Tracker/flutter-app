@@ -1,6 +1,7 @@
 import 'package:baby_tracker/services/api.dart';
 import 'package:baby_tracker/utils/ApiResponse.dart';
 import 'package:baby_tracker/utils/dialogue.dart';
+import 'package:baby_tracker/widgets/star_rating.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -69,6 +70,16 @@ class _InvitationsScreenState extends State<BabySittersScreen> {
   ) async {
     String url = "/baby-sitter/invite";
 
+    if (id == "" || dropdownValue == null || _chosenDateTime == null) {
+      showMyDialog(
+        context,
+        'Fail',
+        'Please select a baby and an expiration date',
+        StylishDialogType.ERROR,
+      );
+      return;
+    }
+
     ApiResponse apiResponse = await Api.post(
       url,
       <String, String>{
@@ -97,12 +108,12 @@ class _InvitationsScreenState extends State<BabySittersScreen> {
     ApiResponse apiResponse = await Api.post(
       url,
       <String, String>{
-        "rating": _textFieldController.text,
+        "rating": rating.toString(),
       },
     );
 
     setState(() {
-      _textFieldController.text = "";
+      rating = 0;
     });
 
     if (apiResponse.statusCode == 200 || apiResponse.statusCode == 201) {
@@ -296,23 +307,26 @@ class _InvitationsScreenState extends State<BabySittersScreen> {
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _chosenDateTime = DateTime.now();
-                                  });
-                                  _displayBabySitterRatingDialogue(
-                                    context,
-                                    allBabySitters![index]!['id']?.toString(),
-                                  );
-                                },
-                                color: Color.fromRGBO(94, 206, 211, 1),
-                                icon: Icon(
-                                  Icons.star_border,
-                                  color: Colors.yellow[700],
-                                ),
-                                hoverColor: Colors.transparent,
-                              ),
+                              allBabySitters![index]!['can_rate'] != false
+                                  ? IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _chosenDateTime = DateTime.now();
+                                        });
+                                        _displayBabySitterRatingDialogue(
+                                          context,
+                                          allBabySitters![index]!['id']
+                                              ?.toString(),
+                                        );
+                                      },
+                                      color: Color.fromRGBO(94, 206, 211, 1),
+                                      icon: Icon(
+                                        Icons.star_border,
+                                        color: Colors.yellow[700],
+                                      ),
+                                      hoverColor: Colors.transparent,
+                                    )
+                                  : Container(),
                               IconButton(
                                 onPressed: () {
                                   setState(() {
@@ -555,14 +569,16 @@ class _InvitationsScreenState extends State<BabySittersScreen> {
                   onPressed: () {
                     setState(() {
                       codeDialog = _textFieldController.text;
-                      inviteBabySitter(id);
                       Navigator.pop(context);
+                      inviteBabySitter(id);
                     });
                   }),
             ],
           );
         });
   }
+
+  double rating = 0;
 
   Future<void> _displayBabySitterRatingDialogue(
       BuildContext context, dynamic id) async {
@@ -574,44 +590,41 @@ class _InvitationsScreenState extends State<BabySittersScreen> {
             contentPadding: EdgeInsets.zero,
             clipBehavior: Clip.antiAliasWithSaveLayer,
             title: Text('Rate Baby Sitter'),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text(
-                    "Rating: ",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
+            content: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      "Rating: ",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextField(
-                    controller: _textFieldController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      //only numeric keyboard.
-                      LengthLimitingTextInputFormatter(1),
-                    ],
-                    decoration: InputDecoration(
-                        icon: const Icon(
-                          CupertinoIcons.star_fill,
-                          color: Colors.yellow,
-                        ),
-                        hintText: "Rating"),
+                  Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: StarRating(
+                        rating: rating,
+                        onRatingChanged: (rating) {
+                          setState(() {
+                            this.rating = rating;
+                          });
+                        },
+                        color: Colors.orange,
+                      )),
+                  SizedBox(
+                    height: 10,
                   ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-              ],
-            ),
+                ],
+              );
+            }),
             actions: <Widget>[
               FlatButton(
                 color: Colors.grey.shade400,
@@ -627,16 +640,17 @@ class _InvitationsScreenState extends State<BabySittersScreen> {
                 },
               ),
               FlatButton(
-                  color: Color.fromRGBO(94, 206, 211, 1),
-                  textColor: Colors.white,
-                  child: Text('OK'),
-                  onPressed: () {
-                    setState(() {
-                      codeDialog = _textFieldController.text;
-                      rateBabySitter(id);
-                      Navigator.pop(context);
-                    });
-                  }),
+                color: Color.fromRGBO(94, 206, 211, 1),
+                textColor: Colors.white,
+                child: Text('OK'),
+                onPressed: () {
+                  setState(() {
+                    codeDialog = _textFieldController.text;
+                    rateBabySitter(id);
+                    Navigator.pop(context);
+                  });
+                },
+              ),
             ],
           );
         });

@@ -48,6 +48,19 @@ class AddBabyScreenState extends State<AddBabyScreen> {
   }
 
   void addBaby() async {
+    if (_image == null ||
+        dateCtl.text == '' ||
+        nameController.text == '' ||
+        genderController.text == '') {
+      showMyDialog(
+        context,
+        'Error',
+        'Please fill all the fields',
+        StylishDialogType.ERROR,
+      );
+      return;
+    }
+
     var request = http.MultipartRequest(
         "POST",
         Uri.parse(
@@ -81,6 +94,9 @@ class AddBabyScreenState extends State<AddBabyScreen> {
         showMyDialog(context, 'Success', 'Created Successfully',
             StylishDialogType.SUCCESS);
         Navigator.pushNamed(context, '/profile');
+      } else {
+        showMyDialog(
+            context, 'Error', 'Something went wrong', StylishDialogType.ERROR);
       }
     }).catchError((err) {
       showMyDialog(
@@ -207,18 +223,15 @@ class AddBabyScreenState extends State<AddBabyScreen> {
                   child: Container(
                       padding: EdgeInsets.only(left: 0, top: 40.0),
                       child: ElevatedButton(
-                        child: Text(
-                          'Add',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                            primary: const Color.fromRGBO(94, 206, 211, 1)),
-                        onPressed: _image != null
-                            ? () {
-                                addBaby();
-                              }
-                            : () {},
-                      )),
+                          child: Text(
+                            'Add',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                              primary: const Color.fromRGBO(94, 206, 211, 1)),
+                          onPressed: () {
+                            addBaby();
+                          })),
                 ),
               ],
             ),

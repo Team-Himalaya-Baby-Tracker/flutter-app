@@ -51,6 +51,12 @@ class LoginState extends State<Login> {
       sharedPreferences.setString('token', apiResponse.data['token']);
 
       Navigator.pushNamed(context, '/profile');
+    } else if (apiResponse.statusCode == 404) {
+      showMyDialog(
+          context,
+          'Error',
+          'The password or email you’ve entered is incorrect',
+          StylishDialogType.ERROR);
     } else {
       showMyDialog(
           context, 'Fail', apiResponse.apiError.error, StylishDialogType.ERROR);

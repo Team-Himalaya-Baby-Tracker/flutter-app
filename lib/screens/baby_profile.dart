@@ -150,6 +150,16 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
   final double circleBorderWidth = 8.0;
 
   void addDiaper() async {
+    if (diaperTypeController.text == "") {
+      showMyDialog(
+        context,
+        'Fail',
+        'Please fill all fields',
+        StylishDialogType.ERROR,
+      );
+      return;
+    }
+
     dynamic body = <String, dynamic>{
       "type": [diaperTypeController.text],
       "notes": noteFieldController.text,
@@ -184,6 +194,16 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
   }
 
   void addWeight() async {
+    if (noteFieldController.text == "" || datePickerController.text == "") {
+      showMyDialog(
+        context,
+        'Fail',
+        'Please fill all fields',
+        StylishDialogType.ERROR,
+      );
+      return;
+    }
+
     var body = <String, dynamic>{
       "weight": noteFieldController.text,
       "created_at": datePickerController.text,
@@ -212,6 +232,16 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
   }
 
   void addBreastFeedRecord() async {
+    if (noteFieldController.text == "" || amountFieldController.text == "") {
+      showMyDialog(
+        context,
+        'Fail',
+        'Please fill all fields',
+        StylishDialogType.ERROR,
+      );
+      return;
+    }
+
     var body = <String, dynamic>{
       "notes": noteFieldController.text,
       "amount": amountFieldController.text,
@@ -245,6 +275,16 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
   }
 
   void addBottleFeedRecord() async {
+    if (noteFieldController.text == "" || amountFieldController.text == "") {
+      showMyDialog(
+        context,
+        'Fail',
+        'Please fill all fields',
+        StylishDialogType.ERROR,
+      );
+      return;
+    }
+
     var body = <String, dynamic>{
       "notes": noteFieldController.text,
       "amount": amountFieldController.text,
@@ -274,6 +314,16 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
   }
 
   void addHeight() async {
+    if (noteFieldController.text == "" || datePickerController.text == "") {
+      showMyDialog(
+        context,
+        'Fail',
+        'Please fill all fields',
+        StylishDialogType.ERROR,
+      );
+      return;
+    }
+
     var body = <String, dynamic>{
       "size": noteFieldController.text,
       "created_at": datePickerController.text,
@@ -598,8 +648,8 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                   child: Text('Add'),
                   onPressed: () {
                     setState(() {
-                      addDiaper();
                       Navigator.pop(context);
+                      addDiaper();
                     });
                   },
                 ),
@@ -667,8 +717,8 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                 child: Text('Add'),
                 onPressed: () {
                   setState(() {
-                    addWeight();
                     Navigator.pop(context);
+                    addWeight();
                   });
                 },
               ),
@@ -735,8 +785,8 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                 child: Text('Add'),
                 onPressed: () {
                   setState(() {
-                    addBreastFeedRecord();
                     Navigator.pop(context);
+                    addBreastFeedRecord();
                   });
                 },
               ),
@@ -784,8 +834,8 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                 child: Text('Add'),
                 onPressed: () {
                   setState(() {
-                    addBottleFeedRecord();
                     Navigator.pop(context);
+                    addBottleFeedRecord();
                   });
                 },
               ),
@@ -851,8 +901,8 @@ class _BabyProfileScreenState extends State<BabyProfileScreen> {
                 child: Text('Add'),
                 onPressed: () {
                   setState(() {
-                    addHeight();
                     Navigator.pop(context);
+                    addHeight();
                   });
                 },
               ),
